@@ -1,0 +1,92 @@
+import keras
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pickle
+from sklearn.utils import shuffle
+
+with open("E:/RealLifeProjectML/original/Proj/Project 5/traffic-signs-data/train.p", mode = 'rb') as training_data:
+    train = pickle.load(training_data)
+with open("E:/RealLifeProjectML/original/Proj/Project 5/traffic-signs-data/test.p", mode = 'rb') as testing_data:
+    test = pickle.load(testing_data)
+with open("E:/RealLifeProjectML/original/Proj/Project 5/traffic-signs-data/valid.p", mode = 'rb') as validation_data:
+    valid = pickle.load(validation_data)
+
+x_train, y_train = train['features'], train['labels']
+x_test, y_test = test['features'], test['labels']
+x_valid, y_valid = valid['features'], valid['labels']
+
+
+x_train, y_train = shuffle(x_train, y_train)
+
+# turn the images into grayscale
+x_train_gray = np.sum(x_train/3, axis= 3, keepdims= True)
+x_test_gray = np.sum(x_test/3, axis= 3, keepdims= True)
+x_valid_gray = np.sum(x_valid/3, axis= 3, keepdims= True)
+
+# Nomalize the data
+x_train_gray_norm = (x_train_gray - 128)/128
+x_test_gray_norm = (x_test_gray - 128)/128
+x_valid_gray_norm = (x_valid_gray - 128)/128
+
+# Plot the images to visualize the data
+w_grid = 10
+l_grid = 10
+
+fig, axis = plt.subplots(w_grid, l_grid, figsize = (32,32))
+axis = axis.ravel()
+n_training = len(x_train)
+
+for i in range(0, 100):
+    index = np.random.randint(0,n_training)
+    axis[i].imshow(x_train_gray_norm[index].squeeze(), cmap = 'gray')
+    axis[i].set_title(y_train[index])
+    axis[i].axis('off')
+plt.subplots_adjust(hspace= 0.5)
+
+# Build LeNet Architecture of CNN
+from keras.models import Sequential
+from keras.layers import Dense, Conv2D, MaxPool2D, AveragePooling2D, Flatten, Dropout
+from keras.layers.normalization import BatchNormalization
+from keras.optimizers import Adam
+
+# Build Model
+Lenet = Sequential()
+
+Lenet.add(Conv2D(filters= 6, kernel_size= (5,5), activation= 'relu', input_shape= (32,32,1)))
+Lenet.add(MaxPool2D(2,2))
+
+Lenet.add(Conv2D(filters= 16, kernel_size= (5,5), activation= 'relu'))
+Lenet.add(MaxPool2D(2,2))
+
+Lenet.add(Conv2D(filters= 120, kernel_size= (5,5), activation= 'relu'))
+Lenet.add(Flatten())
+
+Lenet.add(Dense(units= 84, activation= 'relu'))
+Lenet.add(Dense(units= 43, activation= 'softmax'))
+
+Lenet.summary()
+
+opt = Adam(lr= 0.001)
+
+# Compile
+Lenet.compile(loss= 'sparse_categorical_crossentropy', optimizer= opt, metrics= ['accuracy'])
+
+# Train the model
+epoch_history = Lenet.fit(x_train_gray_norm, y_train, batch_size= 500, epochs= 50, validation_data= (x_valid_gray_norm, y_valid), verbose= 1)
+
+# Evaluate
+score = Lenet.evaluate(x_test_gray_norm, y_test)
+print('Test Accuracy : %0.4f' %(score[1]*100))
+
+# Plot Loss
+plt.subplot(211)
+plt.title('Cross Entropy Loss')
+plt.plot(epoch_history.history['loss'], color = 'blue', label= 'train')
+plt.plot(epoch_history.history['val_loss'], color= 'orange', label= 'test')
+plt.subplot(212)
+plt.title('Classification Accuracy')
+plt.plot(epoch_history.history['accuracy'], color= 'blue', label= 'train')
+plt.plot(epoch_history.history['val_accuracy'], color= 'orange', label= 'test')
+plt.show()
