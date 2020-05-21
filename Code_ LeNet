@@ -90,3 +90,10 @@ plt.title('Classification Accuracy')
 plt.plot(epoch_history.history['accuracy'], color= 'blue', label= 'train')
 plt.plot(epoch_history.history['val_accuracy'], color= 'orange', label= 'test')
 plt.show()
+
+# To compare Predicted Classes using Confusion matrix
+y_pred = Lenet.predict_classes(x_test_gray_norm)
+from sklearn.metrics import confusion_matrix
+cnf = confusion_matrix(y_test, y_predict)
+plt.figure(figsize= (35,35))
+sns.heatmap(cnf, annot= True)
