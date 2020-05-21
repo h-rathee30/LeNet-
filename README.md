@@ -1,25 +1,15 @@
 # LeNet-
 One of the oldest CNN architecture.
 Structure:-
-Layer (type)                 Output Shape              Param #   
-=================================================================
-conv2d_1 (Conv2D)            (None, 28, 28, 6)         156       
-_________________________________________________________________
-max_pooling2d_1 (MaxPooling2 (None, 14, 14, 6)         0         
-_________________________________________________________________
-conv2d_2 (Conv2D)            (None, 10, 10, 16)        2416      
-_________________________________________________________________
-max_pooling2d_2 (MaxPooling2 (None, 5, 5, 16)          0         
-_________________________________________________________________
-conv2d_3 (Conv2D)            (None, 1, 1, 120)         48120     
-_________________________________________________________________
-flatten_1 (Flatten)          (None, 120)               0         
-_________________________________________________________________
-dense_1 (Dense)              (None, 84)                10164     
-_________________________________________________________________
-dense_2 (Dense)              (None, 43)                3655      
-=================================================================
-Total params: 64,511
-Trainable params: 64,511
-Non-trainable params: 0
-_________________________________________________________________
+
+Conv2D - filter(6), kernel_size(5,5)
+MaxPool2D(2,2)
+Conv2D - filters(16), kernel_size(5,5)
+MaxPool2D(2,2)
+Conv2D - filters(120), kernel_size(5,5)
+
+this last layer output_size is 84
+so we use 2 Dense Layer
+
+Dense- units(84)
+Dense- units(43) {output layer}
